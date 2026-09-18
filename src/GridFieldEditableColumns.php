@@ -366,11 +366,35 @@ class GridFieldEditableColumns extends GridFieldDataColumns implements
     private function isChanged(DataObject $item, array $fields): bool
     {
         foreach ($fields as $name => $value) {
-            if ($item->getField($name) !== $value) {
+            if ($this->normaliseValue($item->getField($name)) !== $this->normaliseValue($value)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Normalise values before comparison in isChanged().
+     *
+     * Arrays are normalised recursively, numeric strings are cast to numbers,
+     * and booleans are converted to integers so equivalent submitted values
+     * don't trigger false-positive changes.
+     */
+    private function normaliseValue(mixed $value): mixed
+    {
+        if (is_array($value)) {
+            return array_map([$this, 'normaliseValue'], $value);
+        }
+
+        if (is_numeric($value)) {
+            return $value + 0;
+        }
+
+        if (is_bool($value)) {
+            return (int)$value;
+        }
+
+        return $value;
     }
 }
