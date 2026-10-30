@@ -3,6 +3,7 @@
 namespace Symbiote\GridFieldExtensions\Tests;
 
 use Symbiote\GridFieldExtensions\Tests\Stub\TestController;
+use Symbiote\GridFieldExtensions\Tests\Stub\StubMultiFields;
 use Symbiote\GridFieldExtensions\Tests\Stub\StubUnorderable;
 use Symbiote\GridFieldExtensions\GridFieldEditableColumns;
 use SilverStripe\ORM\DataObject;
@@ -174,5 +175,67 @@ class GridFieldEditableColumnsTest extends SapphireTest
         $this->assertTrue($this->invokeIsChanged($component, $item, [
             'Sort' => '4',
         ]));
+    }
+
+    // Helper function that does generate a regex matching a specific
+    // <input> element with the `checked="checked"` property.
+    private static function checkedRegex(int $id, string $field, string $option): string
+    {
+        return '/<input[^>]*name="[^]]*\[GridFieldEditableColumns\]\['
+            . $id . '\]\[' . $field . '\]\[' . $option
+            . '\][^>]*checked="checked"[^>]*>/s';
+    }
+
+    private function assertOptionNotChecked(int $id, string $field, string $option, $html)
+    {
+        return $this->assertDoesNotMatchRegularExpression(self::checkedRegex($id, $field, $option), $html);
+    }
+
+    private function assertOptionChecked(int $id, string $field, string $option, $html)
+    {
+        $this->assertMatchesRegularExpression(self::checkedRegex($id, $field, $option), $html);
+    }
+
+    public function testMultiSelectWorks()
+    {
+        $grid = $this->getMockGrid();
+        // Change the DataObject this grid should handle
+        $grid->setModelClass(StubMultiFields::class);
+        $grid->setList(StubMultiFields::get());
+
+        // The DataObject to use for testing
+        $record = new StubMultiFields();
+        $record->ID = 100;
+        $record->Title = null;
+
+        $component = new GridFieldEditableColumns();
+        $this->assertEquals(
+            [ 'Title' ],
+            $component->getColumnsHandled($grid)
+        );
+
+        // Ensure different option combinations work as expected
+        $column = $component->getColumnContent($grid, $record, 'Title');
+        $this->assertOptionNotChecked(100, 'Title', 'A', $column);
+        $this->assertOptionNotChecked(100, 'Title', 'B', $column);
+        $this->assertOptionNotChecked(100, 'Title', 'C', $column);
+
+        $record->Title = 'B';
+        $column = $component->getColumnContent($grid, $record, 'Title');
+        $this->assertOptionNotChecked(100, 'Title', 'A', $column);
+        $this->assertOptionChecked(100, 'Title', 'B', $column);
+        $this->assertOptionNotChecked(100, 'Title', 'C', $column);
+
+        $record->Title = 'B,C';
+        $column = $component->getColumnContent($grid, $record, 'Title');
+        $this->assertOptionNotChecked(100, 'Title', 'A', $column);
+        $this->assertOptionChecked(100, 'Title', 'B', $column);
+        $this->assertOptionChecked(100, 'Title', 'C', $column);
+
+        $record->Title = 'A,B,C';
+        $column = $component->getColumnContent($grid, $record, 'Title');
+        $this->assertOptionChecked(100, 'Title', 'A', $column);
+        $this->assertOptionChecked(100, 'Title', 'B', $column);
+        $this->assertOptionChecked(100, 'Title', 'C', $column);
     }
 }

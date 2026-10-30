@@ -50,6 +50,9 @@ $gridField = GridField::create(
 You can customise the form fields that are used in the GridField by calling `setDisplayFields()` on the
 inline editing component. By default field scaffolding will be used.
 
+> [!WARNING]
+> Fields based on `MultiSelectField` ignore `fieldCasting()` and `formatValue()` manipulations.
+
 ```php
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\TextField;
