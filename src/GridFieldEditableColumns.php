@@ -18,6 +18,7 @@ use SilverStripe\Forms\GridField\GridField_SaveHandler;
 use SilverStripe\Forms\GridField\GridField_URLHandler;
 use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
 use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\MultiSelectField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Model\List\ArrayList;
 use SilverStripe\ORM\DataList;
@@ -123,7 +124,14 @@ class GridFieldEditableColumns extends GridFieldDataColumns implements
         $value = $this->formatValue($grid, $record, $col, $value);
 
         $field->setName($this->getFieldName($field->getName(), $grid, $record));
-        $field->setValue($value);
+        if ($field instanceof MultiSelectField) {
+            // MultiSelectField must have access to the original $record
+            // to be able to fetch all active options properly: this in
+            // turn means $value is ignored here!
+            $field->setValue($value, $record);
+        } else {
+            $field->setValue($value);
+        }
 
         if ($grid->isReadonly() || !$record->canEdit()) {
             $field = $field->performReadonlyTransformation();
