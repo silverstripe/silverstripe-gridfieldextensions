@@ -288,10 +288,20 @@
 
 		$('.ss-gridfield-editable .ss-gridfield-item').entwine({
 			onclick: function(e) {
-				// Prevent the default row click action when clicking a cell that contains a field
-				if (this.find('.editable-column-field').length) {
+				var target = $(e.target);
+				var cell = target.closest('td');
+				// Skip the default row click action when a field, label, link or button was clicked,
+				// or markup inside a cell that holds an editable field. The second case covers widgets
+				// that hide the field and draw their own markup next to it (toggle switches, select2,
+				// date pickers). A click on the cell itself or on other row space opens the record.
+				if (
+					target.closest('input, select, textarea, label, a, button, .editable-column-field, .action-menu').length
+					|| (cell.length && !target.is(cell) && cell.find('.editable-column-field').length)
+				) {
 					e.stopPropagation();
+					return;
 				}
+				this._super(e);
 			}
 		});
 
