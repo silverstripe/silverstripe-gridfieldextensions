@@ -289,7 +289,10 @@
 		$('.ss-gridfield-editable .ss-gridfield-item').entwine({
 			onclick: function(e) {
 				var target = $(e.target);
-				var cell = target.closest('td');
+				// The cell of this row that holds the target. Matching against the row's own cells,
+				// rather than the nearest td, keeps a table nested inside a field from being mistaken
+				// for the row's cell.
+				var cell = target.closest(this.children('td'));
 				// Skip the default row click action when a field, label, link or button was clicked,
 				// or markup inside a cell that holds an editable field. The second case covers widgets
 				// that hide the field and draw their own markup next to it (toggle switches, select2,
