@@ -8,7 +8,9 @@ use Symbiote\GridFieldExtensions\Tests\Stub\StubUnorderable;
 use Symbiote\GridFieldExtensions\GridFieldEditableColumns;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBHTMLText;
+use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Dev\SapphireTest;
@@ -16,6 +18,10 @@ use ReflectionMethod;
 
 class GridFieldEditableColumnsTest extends SapphireTest
 {
+    protected static $extra_dataobjects = [
+        StubMultiFields::class,
+    ];
+
     /**
      * Allow access to GridFieldEditableColumns::normaliseValue
      */
@@ -237,5 +243,76 @@ class GridFieldEditableColumnsTest extends SapphireTest
         $this->assertOptionChecked(100, 'Title', 'A', $column);
         $this->assertOptionChecked(100, 'Title', 'B', $column);
         $this->assertOptionChecked(100, 'Title', 'C', $column);
+    }
+
+    private function getMultiFieldsGrid(): array
+    {
+        $grid = $this->getMockGrid();
+        $grid->setModelClass(StubMultiFields::class);
+        $grid->setList(StubMultiFields::get());
+
+        $component = new GridFieldEditableColumns();
+        $component->setDisplayFields([
+            'Name' => fn () => TextField::create('Name'),
+            'Tags' => fn () => CheckboxSetField::create('Tags', 'Tags', ['red' => 'Red', 'green' => 'Green']),
+            'Title' => fn () => CheckboxSetField::create('Title', 'Title', ['A' => 'A', 'B' => 'B', 'C' => 'C']),
+        ]);
+        $grid->getConfig()->addComponent($component);
+
+        return [$grid, $component];
+    }
+
+    public function testMultiSelectWorksWithJsonEncodedValue()
+    {
+        [$grid, $component] = $this->getMultiFieldsGrid();
+
+        $record = new StubMultiFields();
+        $record->ID = 100;
+
+        // A single stored value
+        $record->Tags = '["red"]';
+        $column = $component->getColumnContent($grid, $record, 'Tags');
+        $this->assertOptionChecked(100, 'Tags', 'red', $column);
+        $this->assertOptionNotChecked(100, 'Tags', 'green', $column);
+
+        // Several stored values
+        $record->Tags = '["red","green"]';
+        $column = $component->getColumnContent($grid, $record, 'Tags');
+        $this->assertOptionChecked(100, 'Tags', 'red', $column);
+        $this->assertOptionChecked(100, 'Tags', 'green', $column);
+    }
+
+    public function testSavingAnotherColumnKeepsMultiSelectValues()
+    {
+        [$grid, $component] = $this->getMultiFieldsGrid();
+
+        $record = StubMultiFields::create([
+            'Name' => 'Original',
+            'Tags' => '["red"]',
+            'Title' => 'A,C',
+        ]);
+        $record->write();
+        $id = $record->ID;
+
+        // Build the submission a browser would send for this row: the checked
+        // options as rendered, plus an edited value in another column
+        $fields = ['Name' => 'Edited'];
+        $options = ['Tags' => ['red', 'green'], 'Title' => ['A', 'B', 'C']];
+        foreach ($options as $field => $values) {
+            $column = $component->getColumnContent($grid, $record, $field);
+            foreach ($values as $value) {
+                if (preg_match(self::checkedRegex($id, $field, $value), $column)) {
+                    $fields[$field][$value] = $value;
+                }
+            }
+        }
+
+        $grid->setValue([GridFieldEditableColumns::POST_KEY => [$id => $fields]]);
+        $component->handleSave($grid, $record);
+
+        $saved = StubMultiFields::get()->byID($id);
+        $this->assertSame('Edited', $saved->Name);
+        $this->assertSame('["red"]', $saved->Tags);
+        $this->assertSame('A,C', $saved->Title);
     }
 }
