@@ -28,6 +28,10 @@ And a click elsewhere in the nested row to open the nested record
     And I click on the ".ss-gridfield-item.first.odd button" element
     And I wait until I see the ".nested-gridfield.odd .ss-gridfield-item.first .col-Name input" element
 
+  # The nested GridField is loaded after the CMS change tracker has stored the form's original
+  # values, so clicking one of its inputs marks the edit form as changed and leaving the page
+  # raises the "unsaved changes" dialog. The tag makes behat accept that dialog after the scenario.
+  @unsavedChanges
   Scenario: Clicking an input in the nested GridField opens neither row
     When I click on the ".nested-gridfield.odd .ss-gridfield-item.first .col-Name input" element
     And I wait for 2 seconds
