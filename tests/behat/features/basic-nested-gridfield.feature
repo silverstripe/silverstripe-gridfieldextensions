@@ -65,9 +65,11 @@ I want to see all children of non-hierarchical relational data in nested GridFie
     Given I should see "Root Node One" in the ".ss-gridfield-item.first.odd" element
       And I should see "Root Node Two" in the ".ss-gridfield-item.last.even" element
       When I click on the ".ss-gridfield-item.first.odd button" element
+      And I wait until I see the ".nested-gridfield.odd .ss-gridfield-item" element
       And I should see "Branch Node One" in the ".nested-gridfield.odd" element
       And I should see "Branch Node Two" in the ".nested-gridfield.odd" element
       When I click on the ".nested-gridfield.odd .ss-gridfield-items button" element
+      And I wait until I see the ".nested-gridfield.odd .nested-gridfield .ss-gridfield-item:not(.loading)" element
       And I should see "Leaf Node One" in the ".nested-gridfield.odd" element
       And I should see "Leaf Node Two" in the ".nested-gridfield.odd" element
       And I should see "Leaf Node Three" in the ".nested-gridfield.odd" element
@@ -76,6 +78,7 @@ I want to see all children of non-hierarchical relational data in nested GridFie
   Scenario: I want to edit and delete items in nested GridField
     Given I should see "Root Node Two" in the ".ss-gridfield-item.last.even" element
       When I click on the ".ss-gridfield-item.last.even button" element
+      And I wait until I see the ".nested-gridfield.even .ss-gridfield-item" element
       And I should see "Branch Node Three" in the ".nested-gridfield.even .ss-gridfield-item.first.odd" element
       And I should see "Branch Node Four" in the ".nested-gridfield.even .ss-gridfield-item.last.even" element
       When I click on the ".nested-gridfield.even .ss-gridfield-item.first.odd" element
@@ -93,12 +96,14 @@ I want to see all children of non-hierarchical relational data in nested GridFie
     Given I should see "Root Node One" in the ".ss-gridfield-item.first.odd" element
       And I should see "Root Node Two" in the ".ss-gridfield-item.last.even" element
       When I click on the ".ss-gridfield-item.first.odd button" element
+      And I wait until I see the ".nested-gridfield.odd .ss-gridfield-item" element
       And I should see "Branch Node One" in the ".nested-gridfield.odd .ss-gridfield-item.first.odd" element
       And I should see "Branch Node Two" in the ".nested-gridfield.odd .ss-gridfield-item.last.even" element
       Then I click on the ".nested-gridfield.odd button[value='Category']" element
       And I should see "Branch Node Two" in the ".nested-gridfield.odd .ss-gridfield-item.first.odd" element
       And I should see "Branch Node One" in the ".nested-gridfield.odd .ss-gridfield-item.last.even" element
       When I click on the ".nested-gridfield.odd .ss-gridfield-item:nth-of-type(2) button" element
+      And I wait until I see the ".nested-gridfield.odd .nested-gridfield .ss-gridfield-item:not(.loading)" element
       And I should see "Leaf Node One" in the ".nested-gridfield.odd .nested-gridfield .ss-gridfield-item:nth-of-type(1)" element
       And I should see "Leaf Node Two" in the ".nested-gridfield.odd .nested-gridfield .ss-gridfield-item:nth-of-type(2)" element
       And I should see "Leaf Node Three" in the ".nested-gridfield.odd .nested-gridfield .ss-gridfield-item:nth-of-type(3)" element
@@ -120,6 +125,7 @@ I want to see all children of non-hierarchical relational data in nested GridFie
   Scenario: I can to filter items in nested GridField
     Given I should see "Root Node One" in the ".ss-gridfield-item.first.odd" element
       When I click on the ".ss-gridfield-item.first.odd button" element
+      And I wait until I see the ".nested-gridfield.odd .ss-gridfield-item" element
       And I should see "Branch Node One" in the ".nested-gridfield.odd .ss-gridfield-item.first.odd" element
       And I should see "Branch Node Two" in the ".nested-gridfield.odd .ss-gridfield-item.last.even" element
       Then I click on the ".nested-gridfield.odd button[title='Open search and filter']" element
@@ -133,6 +139,7 @@ Scenario: I want to see all non-relational data in nested GridField
     Given I go to "/admin/nested-gridfield-section/non-relational-data"
       And I should see "Data Set 1" in the ".ss-gridfield-item.first.odd" element
       When I click on the ".ss-gridfield-item:nth-of-type(1) button" element
+      And I wait until I see the ".nested-gridfield.odd .ss-gridfield-item" element
       Then I should see "Walmart" in the ".nested-gridfield.odd .ss-gridfield-item:nth-of-type(1)" element
       And I should see "ExxonMobil" in the ".nested-gridfield.odd .ss-gridfield-item:nth-of-type(2)" element
       And I should see "Royal Dutch Shell" in the ".nested-gridfield.odd .ss-gridfield-item:nth-of-type(3)" element
