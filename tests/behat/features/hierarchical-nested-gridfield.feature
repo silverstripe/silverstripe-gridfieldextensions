@@ -37,6 +37,7 @@ I want to see all children of hierarchical relational data in nested GridField
     Given I should see "Group One" in the ".ss-gridfield-item:nth-of-type(1)" element
       And I should see "Group Two" in the ".ss-gridfield-item:nth-of-type(2)" element
       When I click on the ".ss-gridfield-item.first.odd button" element
+      And I wait until I see the ".nested-gridfield.odd .ss-gridfield-item" element
       And I should see "Adam" in the ".nested-gridfield.odd" element
       And I should see "Jim" in the ".nested-gridfield.odd" element
       And I should see "Tom" in the ".nested-gridfield.odd" element
@@ -45,6 +46,7 @@ I want to see all children of hierarchical relational data in nested GridField
   Scenario: I want to edit and delete items in nested GridField
     Given I should see "Group One" in the ".ss-gridfield-item:nth-of-type(1)" element
       When I click on the ".ss-gridfield-item:nth-of-type(1) button" element
+      And I wait until I see the ".nested-gridfield.odd .ss-gridfield-item" element
       Then I click on the ".nested-gridfield.odd button[value='First Name']" element
       And I should see "Adam" in the ".nested-gridfield.odd .ss-gridfield-item.first.odd" element
       And I should see "James" in the ".nested-gridfield.odd .ss-gridfield-item:nth-of-type(2)" element
